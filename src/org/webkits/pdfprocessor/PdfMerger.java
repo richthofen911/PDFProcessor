@@ -4,7 +4,10 @@ import java.io.*;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
@@ -71,13 +74,15 @@ public class PdfMerger {
         Document document = new Document();
         PdfWriter.getInstance(document, new FileOutputStream(outputPdfPath));
         document.open();
-        Paragraph pdfContent = new Paragraph();
+
         FileInputStream fis = new FileInputStream(new File(middleTxtMergedPath));
         byte[] bytes = new byte[1024];
+        StringBuffer stringBuffer = new StringBuffer();
         while (fis.read(bytes) != -1){
-            pdfContent.add(new String(bytes, "UTF-8"));
-            document.add(pdfContent);
+            stringBuffer.append(new String(bytes, "UTF-8"));
         }
+        Paragraph pdfContent = new Paragraph(stringBuffer.toString(), setChineseFont());
+        document.add(pdfContent);
         document.close();
     }
 
@@ -92,7 +97,23 @@ public class PdfMerger {
         }catch (DocumentException e){
             e.printStackTrace();
         }
+    }
 
+    public static Font setChineseFont() {
+        BaseFont bf = null;
+        Font fontChinese = null;
+        try {
+            bf = BaseFont.createFont("resources/SimSun.ttf",
+                    BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            fontChinese = new Font(bf, 12, Font.NORMAL);
+        } catch (DocumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return fontChinese;
     }
 
     public static void main(String[] args) throws IOException {
